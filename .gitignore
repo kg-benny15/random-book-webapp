@@ -1,0 +1,13 @@
+# Virtuals Ennviroment
+venv/
+
+# Enviroments Variables
+.env
+!.env.example
+
+# Development Files
+*.log
+__pycache__
+
+# Testing Files
+.coverage

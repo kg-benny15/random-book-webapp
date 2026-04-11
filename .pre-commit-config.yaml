@@ -1,0 +1,27 @@
+# .pre-commit-config.yaml
+# Auto-runs code quality checks before each git commit
+
+repos:
+  # Repository 1: General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace      # Remove spaces at line ends
+      - id: end-of-file-fixer        # Add newline at file end
+      - id: check-yaml               # Validate YAML syntax
+      - id: check-json               # Validate JSON syntax
+      - id: check-added-large-files  # Block files >500KB
+      - id: detect-private-key       # Prevent committing secrets
+
+  # Repository 2: Black code formatter
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.3.1
+    hooks:
+      - id: black                    # Format Python code (PEP 8)
+
+  # Repository 3: Ruff linter + formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.10
+    hooks:
+      - id: ruff-check               # Lint code and auto-fix issues
+        args: [ --fix ]
