@@ -8,6 +8,7 @@ venv/
 # Development Files
 *.log
 __pycache__
+TODO.md
 
 # Testing Files
 .coverage
