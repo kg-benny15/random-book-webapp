@@ -2,19 +2,27 @@
 Reading Material Models for user's book library.
 
 Models:
-- ReadingMaterial: Database table for user's reading history
+- ReadingMaterial: Database table (with relationships to users)
 - PresentingReadingMaterial: Search/random book results
 - AddReadingMaterial: Form data when user adds a book
 - MaterialResume: User's reading list summary
+
+Relationships:
+- Many-to-Many with User through UserMaterialLink
 """
 
-from sqlmodel import SQLModel, Field
-from datetime import datetime, UTC
+from sqlmodel import SQLModel, Field, Relationship
+from datetime import datetime
 from sqlalchemy import JSON
+from typing import TYPE_CHECKING
 
 # ============================================================
-# DATABASE TABLE
+# DATABASE TABLE (WITH RELATIONSHIPS)
 # ============================================================
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.user_material_link import UserMaterialLink
 
 
 class ReadingMaterial(SQLModel, table=True):
@@ -23,7 +31,6 @@ class ReadingMaterial(SQLModel, table=True):
     __tablename__ = "reading_materials"
 
     id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id", index=True)  # Links to User
     work_id: str = Field(index=True, max_length=50)  # OpenLibrary ID
     cover_id: int | None = Field(default=None)  # Book cover from OpenLibrary
     year: int | None = Field(default=None, gt=1000)  # Publication year
@@ -32,11 +39,20 @@ class ReadingMaterial(SQLModel, table=True):
     genre: list[str] = Field(default=[], sa_type=JSON)  # Tags/categories
     material_type: str = Field(max_length=30)  # book, comic, etc.
     total_pages: int | None = Field(default=None, ge=1)  # Total pages
-    current_page: int = Field(default=0, ge=0)  # Reading progress
-    status: bool = Field(default=False)  # False=reading, True=completed
-    start_date: datetime | None = Field(default=None)  # When user started reading
-    end_date: datetime | None = Field(default=None)  # When user finished
-    last_read_at: datetime | None = Field(default_factory=lambda: datetime.now(UTC))
+
+    # ============================================================
+    # RELATIONSHIPS (Many-to-Many with User)
+    # ============================================================
+
+    # Many-to-Many (via link_model)
+    users: list["User"] = Relationship(
+        back_populates="reading_materials", link_model=UserMaterialLink
+    )
+
+    # Direct access to intermediate table (to get user-specific fields)
+    reading_links: list["UserMaterialLink"] = Relationship(
+        back_populates="reading_material"
+    )
 
 
 # ============================================================
@@ -47,6 +63,7 @@ class ReadingMaterial(SQLModel, table=True):
 class PresentingReadingMaterial(SQLModel):
     """Book preview for search results / random discovery"""
 
+    cover_id: int
     year: int
     title: str
     author: str
@@ -58,6 +75,7 @@ class PresentingReadingMaterial(SQLModel):
 class AddReadingMaterial(SQLModel):
     """Form data when user adds a book to their library"""
 
+    cover_id: int
     year: int
     title: str
     author: str
@@ -73,6 +91,7 @@ class AddReadingMaterial(SQLModel):
 class MaterialResume(SQLModel):
     """Book summary for user's reading history list"""
 
+    cover_id: int
     year: int
     title: str
     author: str
