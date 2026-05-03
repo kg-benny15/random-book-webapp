@@ -15,6 +15,8 @@ Relationships:
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr, field_validator
 from typing import Optional, TYPE_CHECKING
+from app.models.reading_material import ReadingMaterial
+from app.models.user_material_link import UserMaterialLink
 
 # ============================================================
 # DATABASE TABLE (WITH RELATIONSHIPS)
@@ -61,7 +63,7 @@ class CreateUser(SQLModel):
     plain_password: str = Field(
         min_length=8,
         max_length=20,
-        pattern=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$",
+        regex=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$",
     )
     plain_password2: str  # confirmation
 
@@ -97,7 +99,7 @@ class ResetPassword(SQLModel):
     new_plain_password: str = Field(
         min_length=8,
         max_length=20,
-        pattern=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$",
+        regex=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$",
     )
     new_plain_password2: str  # confirmation
 

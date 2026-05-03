@@ -15,6 +15,7 @@ from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
 from sqlalchemy import JSON
 from typing import TYPE_CHECKING
+from app.models.user_material_link import UserMaterialLink
 
 # ============================================================
 # DATABASE TABLE (WITH RELATIONSHIPS)

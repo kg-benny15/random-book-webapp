@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from core.extensions import static
-from web.routes import home
+from app.core.extensions import static
+from app.web.routes import home
 
 app = FastAPI()
 
