@@ -12,19 +12,13 @@ Relationships:
 - Many-to-Many with ReadingMaterial through UserMaterialLink
 """
 
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 from pydantic import EmailStr, field_validator
-from typing import Optional, TYPE_CHECKING
-from app.models.reading_material import ReadingMaterial
-from app.models.user_material_link import UserMaterialLink
+from typing import Optional
 
 # ============================================================
 # DATABASE TABLE (WITH RELATIONSHIPS)
 # ============================================================
-
-if TYPE_CHECKING:
-    from app.models.reading_material import ReadingMaterial
-    from app.models.user_material_link import UserMaterialLink
 
 
 class User(SQLModel, table=True):
@@ -36,18 +30,6 @@ class User(SQLModel, table=True):
     username: str = Field(unique=True, max_length=20)
     email: str = Field(unique=True, max_length=100)
     hash_password: str = Field(max_length=255)  # bcrypt hash, never plain text
-
-    # ============================================================
-    # RELATIONSHIPS (Many-to-Many with ReadingMaterial)
-    # ============================================================
-
-    # Many-to-Many (via link_model)
-    reading_materials: list["ReadingMaterial"] = Relationship(
-        back_populates="users", link_model=UserMaterialLink
-    )
-
-    # Direct access to intermediate table (to get fields like current_page, status)
-    reading_links: list["UserMaterialLink"] = Relationship(back_populates="user")
 
 
 # ============================================================

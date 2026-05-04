@@ -11,19 +11,13 @@ Relationships:
 - Many-to-Many with User through UserMaterialLink
 """
 
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 from datetime import datetime
 from sqlalchemy import JSON
-from typing import TYPE_CHECKING
-from app.models.user_material_link import UserMaterialLink
 
 # ============================================================
 # DATABASE TABLE (WITH RELATIONSHIPS)
 # ============================================================
-
-if TYPE_CHECKING:
-    from app.models.user import User
-    from app.models.user_material_link import UserMaterialLink
 
 
 class ReadingMaterial(SQLModel, table=True):
@@ -35,25 +29,11 @@ class ReadingMaterial(SQLModel, table=True):
     work_id: str = Field(index=True, max_length=50)  # OpenLibrary ID
     cover_id: int | None = Field(default=None)  # Book cover from OpenLibrary
     year: int | None = Field(default=None, gt=1000)  # Publication year
-    title: str = Field(min_length=1, max_length=200)  # Book title
-    author: str = Field(min_length=1, max_length=100)  # Author name
+    title: str = Field(max_length=200)  # Book title
+    author: str = Field(max_length=100)  # Author name
     genre: list[str] = Field(default=[], sa_type=JSON)  # Tags/categories
     material_type: str = Field(max_length=30)  # book, comic, etc.
     total_pages: int | None = Field(default=None, ge=1)  # Total pages
-
-    # ============================================================
-    # RELATIONSHIPS (Many-to-Many with User)
-    # ============================================================
-
-    # Many-to-Many (via link_model)
-    users: list["User"] = Relationship(
-        back_populates="reading_materials", link_model=UserMaterialLink
-    )
-
-    # Direct access to intermediate table (to get user-specific fields)
-    reading_links: list["UserMaterialLink"] = Relationship(
-        back_populates="reading_material"
-    )
 
 
 # ============================================================

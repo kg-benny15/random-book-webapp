@@ -17,13 +17,8 @@ Why needed:
 - Each user has different progress for the same book
 """
 
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 from datetime import datetime, UTC
-from typing import TYPE_CHECKING, Optional
-
-if TYPE_CHECKING:
-    from app.models.user import User
-    from app.models.reading_material import ReadingMaterial
 
 
 class UserMaterialLink(SQLModel, table=True):
@@ -50,15 +45,4 @@ class UserMaterialLink(SQLModel, table=True):
     end_date: datetime | None = Field(default=None)  # When user finished
     last_read_at: datetime | None = Field(
         default_factory=lambda: datetime.now(UTC)  # Last activity timestamp
-    )
-
-    # ============================================================
-    # RELATIONSHIPS (Direct access to related tables)
-    # ============================================================
-
-    # Access the User who owns this link
-    user: Optional["User"] = Relationship(back_populates="reading_links")
-    # Access the Book/Material this link refers to
-    reading_material: Optional["ReadingMaterial"] = Relationship(
-        back_populates="reading_links"
     )

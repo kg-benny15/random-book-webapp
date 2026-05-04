@@ -1,6 +1,6 @@
 import pytest
 from sqlmodel import select
-from app.models.user import User
+from app.models import User
 from app.core.security import hash_password, verify_password
 
 
