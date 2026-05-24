@@ -11,10 +11,14 @@ Relationships:
 - Many-to-Many with User through UserMaterialLink
 """
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
 from sqlalchemy import JSON
+from typing import TYPE_CHECKING
+from app.models.user_material_link import UserMaterialLink
 
+if TYPE_CHECKING:
+    from app.models import User
 # ============================================================
 # DATABASE TABLE (WITH RELATIONSHIPS)
 # ============================================================
@@ -34,6 +38,20 @@ class ReadingMaterial(SQLModel, table=True):
     genre: list[str] = Field(default=[], sa_type=JSON)  # Tags/categories
     material_type: str = Field(max_length=30)  # book, comic, etc.
     total_pages: int | None = Field(default=None, ge=1)  # Total pages
+
+    # ============================================================
+    # READINGMATERIAL RELATIONSHIPS
+    # ============================================================
+
+    # Many-to-Many: ReadingMaterial → User (via link table)
+    users: list["User"] = Relationship(
+        back_populates="reading_materials", link_model=UserMaterialLink
+    )
+
+    # One-to-Many: ReadingMaterial → UserMaterialLink (access user-specific data)
+    user_reading_links: list[UserMaterialLink] = Relationship(
+        back_populates="reading_material"
+    )
 
 
 # ============================================================

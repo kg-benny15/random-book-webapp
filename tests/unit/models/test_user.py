@@ -1,3 +1,7 @@
+"""
+Tests for User model.
+"""
+
 import pytest
 from sqlmodel import select
 from app.models import User
@@ -6,62 +10,100 @@ from app.core.security import hash_password, verify_password
 
 class TestUser:
 
-    def test_sucess_create_user(self, db_session):
+    def test_create_user(self, test_user):
+        """Test successful creation via fixture."""
+        assert test_user.id is not None
+        assert test_user.username == "test_user"
+        assert test_user.email == "test@email.com"
+        assert verify_password("password", test_user.hash_password)
 
-        test_user_1 = User(
-            username="username1",
-            email="testemail@test.com",
-            hash_password=hash_password("password"),
+    def test_create_new_user(self, db_session):
+        """Test creating a brand new user."""
+        user = User(
+            username="brand_new",
+            email="brand@new.com",
+            hash_password=hash_password("secret"),
         )
-
-        db_session.add(test_user_1)
+        db_session.add(user)
         db_session.commit()
 
-        assert test_user_1.id is not None
-        assert verify_password("password", test_user_1.hash_password)
-        assert test_user_1.username == "username1"
-
-    def test_failed_create_user(self, db_session):
-
-        invalid_test_user = User(
-            username=None,
-            email="testemail@test.com",
-            hash_password=hash_password("password"),
-        )
-
-        db_session.add(invalid_test_user)
-
-        with pytest.raises(Exception):
-            db_session.commit()
-
-    def test_duplicate_email(self, db_session):
-        test_user_2 = User(
-            username="username2",
-            email="testemail@test.com",
-            hash_password=hash_password("password2"),
-        )
-
-        db_session.add(test_user_2)
-
-        with pytest.raises(Exception):
-            db_session.commit()
-
-    def test_duplicate_username(self, db_session):
-        test_user_3 = User(
-            username="username1",
-            email="testemail3@test.com",
-            hash_password=hash_password("password3"),
-        )
-
-        db_session.add(test_user_3)
-
-        with pytest.raises(Exception):
-            db_session.commit()
-
-    def test_get_user_by_email(self, db_session):
-        stmt = select(User).where(User.email == "testemail@test.com")
-        user = db_session.exec(stmt).first()
-
         assert user.id is not None
-        assert user.id == 1
-        assert user.username == "username1"
+        assert user.username == "brand_new"
+        assert user.email == "brand@new.com"
+
+    def test_required_fields(self, db_session):
+        """Test that required fields cannot be null."""
+        # Missing username
+        with pytest.raises(Exception):
+            u = User(username=None, email="x@x.com", hash_password="hash")
+            db_session.add(u)
+            db_session.commit()
+        db_session.rollback()
+
+        # Missing email
+        with pytest.raises(Exception):
+            u = User(username="x", email=None, hash_password="hash")
+            db_session.add(u)
+            db_session.commit()
+
+    def test_duplicate_username(self, db_session, test_user):
+        """Test that duplicate username is rejected."""
+        duplicate = User(
+            username=test_user.username,
+            email="different@email.com",
+            hash_password="hash",
+        )
+        db_session.add(duplicate)
+        with pytest.raises(Exception):
+            db_session.commit()
+
+    def test_duplicate_email(self, db_session, test_user):
+        """Test that duplicate email is rejected."""
+        duplicate = User(
+            username="different_user", email=test_user.email, hash_password="hash"
+        )
+        db_session.add(duplicate)
+        with pytest.raises(Exception):
+            db_session.commit()
+
+    def test_get_by_email(self, db_session):
+        """Test query by email."""
+        user = User(
+            username="query_user",
+            email="query@test.com",
+            hash_password=hash_password("pass"),
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        stmt = select(User).where(User.email == "query@test.com")
+        found = db_session.exec(stmt).first()
+
+        assert found is not None
+        assert found.id == user.id
+        assert found.username == "query_user"
+
+    def test_get_by_username(self, db_session):
+        """Test query by username."""
+        user = User(
+            username="unique_username",
+            email="unique@test.com",
+            hash_password=hash_password("pass"),
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        stmt = select(User).where(User.username == "unique_username")
+        found = db_session.exec(stmt).first()
+
+        assert found is not None
+        assert found.id == user.id
+        assert found.email == "unique@test.com"
+
+    def test_update_user(self, db_session, test_user):
+        """Test updating fields."""
+        test_user.username = "updated_username"
+        db_session.commit()
+        db_session.refresh(test_user)
+
+        assert test_user.username == "updated_username"

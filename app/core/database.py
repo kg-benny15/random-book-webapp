@@ -1,5 +1,5 @@
 from os import getenv
-from sqlmodel import create_engine, Session
+from sqlmodel import create_engine, Session, text
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +26,7 @@ def get_session(testing: bool = False):
     else:
         with Session(test_engine) as test_session:
             try:
+                test_session.exec(text("PRAGMA foreign_keys = ON"))
                 yield test_session
             finally:
                 test_session.rollback()
