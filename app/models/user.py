@@ -111,8 +111,13 @@ class ResetPassword(SQLModel):
 
 
 # ============================================================
-# API RESPONSE (NO sensitive data)
+# API RESPONSE
 # ============================================================
+
+
+class UserLoginRequest(SQLModel):
+    username: str
+    password: str
 
 
 class UserResponse(SQLModel):

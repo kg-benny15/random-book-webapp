@@ -14,6 +14,6 @@ if __name__ == "__main__":
     import uvicorn
 
     try:
-        uvicorn.run("main:app", reload=True)
+        uvicorn.run("app.main:app", reload=True)
     except KeyboardInterrupt:
         print("Server Stopped Correctly")

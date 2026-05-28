@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <div></div>
+        <div></div>
+    </nav>
+    <section>
+        {% block main_section %}{% endblock %}
+    </section>
+    <section>
+        {% block second_section %}{% endblock %}
+    </section>
+    <section>
+        {% block third_section %}{% endblock %}
+    </section>
+</body>
+<footer>
+    <p>"Algo de texto"</p>
+    <p>"Algo de texto2"</p>
+    <p>"Algo de texto3"</p>
+</footer>
+</html>
